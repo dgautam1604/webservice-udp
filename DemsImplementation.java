@@ -1,5 +1,7 @@
 package webimpl;
 
+
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -13,57 +15,77 @@ import server.Quebec;
 import server.Sherbrook;
 import webservice.WebInterface;
 
-
 @WebService(endpointInterface = "webservice.WebInterface")
-
 @SOAPBinding(style = SOAPBinding.Style.RPC)
-
-public class DemsImplementation implements WebInterface  {
-
-
+public class DemsImplementation implements WebInterface {
 
 	@Override
 	public String addEvent(String eventID, String eventType,
 			int bookingCapacity, String serv) {
-
+		char[] ch = eventID.toCharArray();
+		char[] ch2 = { ch[0], ch[1], ch[2] };
+		String Serv1 = new String(ch2);
+		if(!(Serv1.equalsIgnoreCase("MTL") || Serv1.equalsIgnoreCase("QUE") ||Serv1.equalsIgnoreCase("SHE") )){
+			return "Wrong Input";
+		}
+		if(( bookingCapacity<0)){
+			return "Wrong Input";
+		}
 		if (serv.equalsIgnoreCase("MTL")) {
+			if(!Serv1.equalsIgnoreCase(serv))
+				return "one server cannot add event in another server";
 			Montreal mn = new Montreal();
 			String var = mn.getHashMap(eventType);
 			// mn.addHashMap(var, eventID, bookingCapacity);
 			return (mn.addHashMap(var, eventID, bookingCapacity));
 		} else if (serv.equalsIgnoreCase("QUE")) {
+			if(!Serv1.equalsIgnoreCase(serv))
+				return "one server cannot add event in another server";
 			Quebec mn = new Quebec();
 
 			String var = mn.getHashMap(eventType);
 			// mn.addHashMap(var, eventID, bookingCapacity);
 			return (mn.addHashMap(var, eventID, bookingCapacity));
 		} else if (serv.equalsIgnoreCase("SHE")) {
+			if(!Serv1.equalsIgnoreCase(serv))
+				return "one server cannot add event in another server";
 			Sherbrook mn = new Sherbrook();
 			String var = mn.getHashMap(eventType);
 			// mn.addHashMap(var, eventID, bookingCapacity);
 			return (mn.addHashMap(var, eventID, bookingCapacity));
 		}
-		return null;
+		return "Wrong Input";
 
 	}
 
 	@Override
 	public String removeEvent(String eventID, String eventType, String serv) {
-
+		char[] ch = eventID.toCharArray();
+		char[] ch2 = { ch[0], ch[1], ch[2] };
+		String Serv1 = new String(ch2);
+		if(!(Serv1.equalsIgnoreCase("MTL") || Serv1.equalsIgnoreCase("QUE") ||Serv1.equalsIgnoreCase("SHE") )){
+			return "Wrong Input";
+		}
 		if (serv.equalsIgnoreCase("MTL")) {
+			if(!Serv1.equalsIgnoreCase(serv))
+				return "one server cannot remove event in another server";
 			Montreal mn = new Montreal();
 			String var = mn.getHashMap(eventType);
 			return mn.removeHashMap(var, eventID);
 		} else if (serv.equalsIgnoreCase("QUE")) {
+			if(!Serv1.equalsIgnoreCase(serv))
+				return "one server cannot remove event in another server";
 			Quebec mn = new Quebec();
 			String var = mn.getHashMap(eventType);
 			return mn.removeHashMap(var, eventID);
 		} else if (serv.equalsIgnoreCase("SHE")) {
+			if(!Serv1.equalsIgnoreCase(serv))
+				return "one server cannot remove event in another server";
 			Sherbrook mn = new Sherbrook();
 			String var = mn.getHashMap(eventType);
 			return mn.removeHashMap(var, eventID);
 		}
-		return null;
+		return "Wrong Input";
 
 	}
 
@@ -77,42 +99,43 @@ public class DemsImplementation implements WebInterface  {
 
 		if (serv.equalsIgnoreCase("MTL")) {
 			Montreal mn = new Montreal();
-			String var = mn.getHashMap(eventType)+"display";
-			
+			String var = mn.getHashMap(eventType) + "display";
+
 			temp1 = mn.display(var.substring(0, 1));
 
 			temp2 = mn.UDPConnect(6001, var);
 
 			temp3 = mn.UDPConnect(6002, var);
-			
-			str = temp1.trim() +"\n"+ temp2.trim() +"\n"+ temp3.trim();
-			/*String str1 = temp1+temp3;
-			str=str1+temp2;*/
-			//str=temp1.concat(temp2).concat(temp3);
+
+			str = temp1.trim() + "\n" + temp2.trim() + "\n" + temp3.trim();
+			/*
+			 * String str1 = temp1+temp3; str=str1+temp2;
+			 */
+			// str=temp1.concat(temp2).concat(temp3);
 			return str;
 
 		} else if (serv.equalsIgnoreCase("QUE")) {
 			Quebec mn = new Quebec();
-			String var = mn.getHashMap(eventType)+"display";
+			String var = mn.getHashMap(eventType) + "display";
 			temp1 = mn.display(var.substring(0, 1));
 
 			temp2 = mn.UDPConnect(6000, var);
 
 			temp3 = mn.UDPConnect(6002, var);
 
-			str = temp1.trim() +"\n"+ temp2.trim() +"\n"+ temp3.trim();
+			str = temp1.trim() + "\n" + temp2.trim() + "\n" + temp3.trim();
 
 			return str;
 		} else if (serv.equalsIgnoreCase("SHE")) {
 			Sherbrook mn = new Sherbrook();
-			String var = mn.getHashMap(eventType)+"display";
+			String var = mn.getHashMap(eventType) + "display";
 			temp1 = mn.display(var.substring(0, 1));
 
 			temp2 = mn.UDPConnect(6001, var);
 
 			temp3 = mn.UDPConnect(6000, var);
 
-			str = temp1.trim() +"\n"+ temp2.trim() +"\n"+ temp3.trim();
+			str = temp1.trim() + "\n" + temp2.trim() + "\n" + temp3.trim();
 
 			return str;
 		}
@@ -130,153 +153,177 @@ public class DemsImplementation implements WebInterface  {
 
 		if (serv.equalsIgnoreCase("MTL")) {
 			Montreal mn = new Montreal();
-			String var = mn.getHashMap(eventType)+"booked "+customerID+eventID;
+			String var = mn.getHashMap(eventType) + "booked " + customerID
+					+ eventID;
 
 			if (serv.equalsIgnoreCase(bookingServ)) {
-				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"Available ")) {
-					String r = mn.bookedEvent(var.substring(0, 1),eventID, customerID);
+				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID)
+						.equalsIgnoreCase("Available ")) {
+					String r = mn.bookedEvent(var.substring(0, 1), eventID,
+							customerID);
 
 					return (r);
 				} else {
-					return ("No such event is available");
+					return ("No such event is available or has no more space");
 				}
-			}
-			else if(bookingServ.equalsIgnoreCase("QUE")){
-				String count=mn.UDPConnect(6001, ("checkCount"+customerID));
-				String count1=mn.UDPConnect(6002, ("checkCount"+customerID));
-				int counter=Integer.parseInt(count.substring(0, 1))+Integer.parseInt(count1.substring(0, 1));
-				if(counter>3){
-					return "Cannot book.You already have 3 booking in the servers";
-				}
-				/*if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"Available ")) {*/
-					String temp2;
-					temp2 = mn.UDPConnect(6001, var);
-					return temp2;
-				/*} else {
-					return ("No such event is available");
-				}*/
-				
-				
-			}else if(bookingServ.equalsIgnoreCase("SHE")){
-				String count=mn.UDPConnect(6001, ("checkCount"+customerID));
-				String count1=mn.UDPConnect(6002, ("checkCount"+customerID));
-				int counter=Integer.parseInt(count.substring(0, 1))+Integer.parseInt(count1.substring(0, 1));
-				if(counter>3){
-					return "Cannot book.You already have 3 booking in the servers";
-				}
-				
-				
-			/*	if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"Available ")) {*/
-					String temp3;
-					temp3 = mn.UDPConnect(6002, var);
-					return temp3;
-				/*} else {
-					return ("No such event is available");
-				}*/
-			}
-			
-			
-		} else if (serv.equalsIgnoreCase("QUE")) {
-			Quebec mn = new Quebec();
-
-			String var = mn.getHashMap(eventType)+"booked "+customerID+eventID;
-			if (serv.equalsIgnoreCase(bookingServ)) {
-				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"Available ")) {
-					String r = mn.bookedEvent(var.substring(0, 1),eventID, customerID);
-
-					return (r);
-				} else {
-					return ("No such event is available");
-				}
-			}
-			else if(bookingServ.equalsIgnoreCase("MTL")){
-				String count=(mn.UDPConnect(6000, ("checkCount"+customerID)));
-				String count1=(mn.UDPConnect(6002, ("checkCount"+customerID)));
-				int counter=Integer.parseInt(count.substring(0, 1))+Integer.parseInt(count1.substring(0, 1));
-				if(counter>3){
-					return "Cannot book.You already have 3 booking in the servers";
-				}
-				
-		/*		if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"Available ")) {*/
-					String temp2;
-					
-					temp2 = mn.UDPConnect(6000, var);
-					return temp2;
-				/*} else {
-					return ("No such event is available");
-				}*/
-			}else if(bookingServ.equalsIgnoreCase("SHE")){
-				String count=mn.UDPConnect(6000, ("checkCount"+customerID));
-				String count1=mn.UDPConnect(6002, ("checkCount"+customerID));
-				int counter=Integer.parseInt(count.substring(0, 1))+Integer.parseInt(count1.substring(0, 1));
-				if(counter>3){
-					return "Cannot book.You already have 3 booking in the servers";
-				}
-				/*if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"Available ")) {*/
-					String temp3;
-					temp3 = mn.UDPConnect(6002, var);
-					return temp3;
-				/*} else {
-					return ("No such event is available");
-				}*/
-				
-			}
-			
-		} else if (serv.equalsIgnoreCase("SHE")) {
-			Sherbrook mn = new Sherbrook();
-
-			String var = mn.getHashMap(eventType)+"booked "+customerID+eventID;
-			if (serv.equalsIgnoreCase(bookingServ)) {
-				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"Available ")) {
-					String r = mn.bookedEvent(var.substring(0, 1),eventID, customerID);
-
-					return (r);
-				} else {
-					return ("No such event is available");
-				}
-			}
-			else if(bookingServ.equalsIgnoreCase("QUE")){
-				String count=mn.UDPConnect(6000, ("checkCount"+customerID));
-				String count1=mn.UDPConnect(6001, ("checkCount"+customerID));
-				int counter=Integer.parseInt(count.substring(0, 1))+Integer.parseInt(count1.substring(0, 1));
-				if(counter>3){
+			} else if (bookingServ.equalsIgnoreCase("QUE")) {
+				String count = mn.UDPConnect(6001, ("checkCount" + customerID+ eventID));
+				String count1 = mn
+						.UDPConnect(6002, ("checkCount" + customerID+ eventID));
+				int counter = Integer.parseInt(count.substring(0, 1))
+						+ Integer.parseInt(count1.substring(0, 1));
+				if (counter == 3) {
 					return "Cannot book.You already have 3 booking in the servers";
 				}
 				/*
-				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"Available ")) {*/
-					String temp2;
-					temp2 = mn.UDPConnect(6001, var);
-					return temp2;
-				/*} else {
-					return ("No such event is available");
-				}*/
-				
-			}else if(bookingServ.equalsIgnoreCase("MTL")){
-				String count=mn.UDPConnect(6000, ("checkCount"+customerID));
-				String count1=mn.UDPConnect(6001, ("checkCount"+customerID));
-				int counter=Integer.parseInt(count.substring(0, 1))+Integer.parseInt(count1.substring(0, 1));
-				if(counter>3){
+				 * if (mn.checkAvailabilityOfEvent(var.substring(0, 1),
+				 * eventID).equalsIgnoreCase( "Available ")) {
+				 */
+				String temp2;
+				temp2 = mn.UDPConnect(6001, var);
+				return temp2;
+				/*
+				 * } else { return ("No such event is available"); }
+				 */
+
+			} else if (bookingServ.equalsIgnoreCase("SHE")) {
+				String count = mn.UDPConnect(6001, ("checkCount" + customerID+ eventID));
+				String count1 = mn
+						.UDPConnect(6002, ("checkCount" + customerID+ eventID));
+				int counter = Integer.parseInt(count.substring(0, 1))
+						+ Integer.parseInt(count1.substring(0, 1));
+				if (counter ==  3) {
 					return "Cannot book.You already have 3 booking in the servers";
 				}
-				/*if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"Available ")) {*/
-					String temp3;
-					temp3 = mn.UDPConnect(6000, var);
-					return temp3;
-			/*	} else {
-					return ("No such event is available");
-				}*/
-				
+
+				/*
+				 * if (mn.checkAvailabilityOfEvent(var.substring(0, 1),
+				 * eventID).equalsIgnoreCase( "Available ")) {
+				 */
+				String temp3;
+				temp3 = mn.UDPConnect(6002, var);
+				return temp3;
+				/*
+				 * } else { return ("No such event is available"); }
+				 */
 			}
-			
+
+		} else if (serv.equalsIgnoreCase("QUE")) {
+			Quebec mn = new Quebec();
+
+			String var = mn.getHashMap(eventType) + "booked " + customerID
+					+ eventID;
+			if (serv.equalsIgnoreCase(bookingServ)) {
+				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID)
+						.equalsIgnoreCase("Available ")) {
+					String r = mn.bookedEvent(var.substring(0, 1), eventID,
+							customerID);
+
+					return (r);
+				} else {
+					return ("No such event is available or has no more space");
+				}
+			} else if (bookingServ.equalsIgnoreCase("MTL")) {
+				String count = (mn
+						.UDPConnect(6000, ("checkCount" + customerID+ eventID)));
+				String count1 = (mn.UDPConnect(6002,
+						("checkCount" + customerID+ eventID)));
+				int counter = Integer.parseInt(count.substring(0, 1))
+						+ Integer.parseInt(count1.substring(0, 1));
+				if (counter == 3) {
+					return "Cannot book.You already have 3 booking in the servers";
+				}
+
+				/*
+				 * if (mn.checkAvailabilityOfEvent(var.substring(0, 1),
+				 * eventID).equalsIgnoreCase( "Available ")) {
+				 */
+				String temp2;
+
+				temp2 = mn.UDPConnect(6000, var);
+				return temp2;
+				/*
+				 * } else { return ("No such event is available"); }
+				 */
+			} else if (bookingServ.equalsIgnoreCase("SHE")) {
+				String count = mn.UDPConnect(6000, ("checkCount" + customerID+ eventID));
+				String count1 = mn
+						.UDPConnect(6002, ("checkCount" + customerID+ eventID));
+				int counter = Integer.parseInt(count.substring(0, 1))
+						+ Integer.parseInt(count1.substring(0, 1));
+				if (counter >= 3) {
+					return "Cannot book.You already have 3 booking in the servers";
+				}
+				/*
+				 * if (mn.checkAvailabilityOfEvent(var.substring(0, 1),
+				 * eventID).equalsIgnoreCase( "Available ")) {
+				 */
+				String temp3;
+				temp3 = mn.UDPConnect(6002, var);
+				return temp3;
+				/*
+				 * } else { return ("No such event is available"); }
+				 */
+
+			}
+
+		} else if (serv.equalsIgnoreCase("SHE")) {
+			Sherbrook mn = new Sherbrook();
+
+			String var = mn.getHashMap(eventType) + "booked " + customerID
+					+ eventID;
+			if (serv.equalsIgnoreCase(bookingServ)) {
+				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID)
+						.equalsIgnoreCase("Available ")) {
+					String r = mn.bookedEvent(var.substring(0, 1), eventID,
+							customerID);
+
+					return (r);
+				} else {
+					return ("No such event is available or has no more space");
+				}
+			} else if (bookingServ.equalsIgnoreCase("QUE")) {
+				String count = mn.UDPConnect(6000, ("checkCount" + customerID+ eventID));
+				String count1 = mn
+						.UDPConnect(6001, ("checkCount" + customerID+ eventID));
+				int counter = Integer.parseInt(count.substring(0, 1))
+						+ Integer.parseInt(count1.substring(0, 1));
+				if (counter == 3) {
+					return "Cannot book.You already have 3 booking in the servers";
+				}
+				/*
+				 * if (mn.checkAvailabilityOfEvent(var.substring(0, 1),
+				 * eventID).equalsIgnoreCase( "Available ")) {
+				 */
+				String temp2;
+				temp2 = mn.UDPConnect(6001, var);
+				return temp2;
+				/*
+				 * } else { return ("No such event is available"); }
+				 */
+
+			} else if (bookingServ.equalsIgnoreCase("MTL")) {
+				String count = mn.UDPConnect(6000, ("checkCount" + customerID+ eventID));
+				String count1 = mn
+						.UDPConnect(6001, ("checkCount" + customerID+ eventID));
+				int counter = Integer.parseInt(count.substring(0, 1))
+						+ Integer.parseInt(count1.substring(0, 1));
+				if (counter == 3) {
+					return "Cannot book.You already have 3 booking in the servers";
+				}
+				/*
+				 * if (mn.checkAvailabilityOfEvent(var.substring(0, 1),
+				 * eventID).equalsIgnoreCase( "Available ")) {
+				 */
+				String temp3;
+				temp3 = mn.UDPConnect(6000, var);
+				return temp3;
+				/*
+				 * } else { return ("No such event is available"); }
+				 */
+
+			}
+
 		}
 		return null;
 
@@ -287,39 +334,42 @@ public class DemsImplementation implements WebInterface  {
 
 		if (serv.equalsIgnoreCase("MTL")) {
 			Montreal mn = new Montreal();
-			String var ="Userdat"+customerID;
+			String var = "Userdat" + customerID;
 
 			String temp1 = mn.getUserData(customerID);
 			String temp2 = mn.UDPConnect(6001, var);
 
 			String temp3 = mn.UDPConnect(6002, var);
 
-			String str = temp1.trim() +"\n"+ temp2.trim() +"\n"+ temp3.trim();
+			String str = temp1.trim() + "\n" + temp2.trim() + "\n"
+					+ temp3.trim();
 
 			return str;
 
 		} else if (serv.equalsIgnoreCase("QUE")) {
 			Quebec mn = new Quebec();
-			String var = "Userdat"+customerID;
+			String var = "Userdat" + customerID;
 
 			String temp1 = mn.getUserData(customerID);
 			String temp2 = mn.UDPConnect(6000, var);
 
 			String temp3 = mn.UDPConnect(6002, var);
 
-			String str = temp1.trim() +"\n"+ temp2.trim() +"\n"+ temp3.trim();
+			String str = temp1.trim() + "\n" + temp2.trim() + "\n"
+					+ temp3.trim();
 
 			return str;
 		} else if (serv.equalsIgnoreCase("SHE")) {
 			Sherbrook mn = new Sherbrook();
-			String var = "Userdat"+customerID;
+			String var = "Userdat" + customerID;
 
 			String temp1 = mn.getUserData(customerID);
 			String temp2 = mn.UDPConnect(6001, var);
 
 			String temp3 = mn.UDPConnect(6000, var);
 
-			String str = temp1.trim() +"\n"+ temp2.trim() +"\n"+ temp3.trim();
+			String str = temp1.trim() + "\n" + temp2.trim() + "\n"
+					+ temp3.trim();
 
 			return str;
 		}
@@ -338,14 +388,16 @@ public class DemsImplementation implements WebInterface  {
 
 		if (serv.equalsIgnoreCase("MTL")) {
 			Montreal mn = new Montreal();
-			String var = mn.getHashMap(eventType)+"cancel "+customerID+eventID;
+			String var = mn.getHashMap(eventType) + "cancel " + customerID
+					+ eventID;
 
 			if (serv.equalsIgnoreCase(bookingServ)) {
-				
-				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"available ")) {
+
+				if (mn.checkAvailabilityOfEvent1(var.substring(0, 1), eventID)
+						.equalsIgnoreCase("available ")) {
 					if (mn.checkUserBooking(eventID, customerID)) {
-						String c = mn.canceledEvent(var.substring(0, 1),eventID, customerID);
+						String c = mn.canceledEvent(var.substring(0, 1),
+								eventID, customerID);
 
 						return (c);
 					} else
@@ -353,30 +405,30 @@ public class DemsImplementation implements WebInterface  {
 				} else {
 					return ("No such eventid is available in this eventType");
 				}
-			}
-			else if(bookingServ.equalsIgnoreCase("QUE")){
-				
+			} else if (bookingServ.equalsIgnoreCase("QUE")) {
+
 				String temp2;
 				temp2 = mn.UDPConnect(6001, var);
 				return temp2;
-				
-			}else if(bookingServ.equalsIgnoreCase("SHE")){
-				
+
+			} else if (bookingServ.equalsIgnoreCase("SHE")) {
+
 				String temp3;
 				temp3 = mn.UDPConnect(6002, var);
 				return temp3;
 			}
-			
-			
+
 		} else if (serv.equalsIgnoreCase("QUE")) {
 			Quebec mn = new Quebec();
 
-			String var = mn.getHashMap(eventType)+"cancel "+customerID+eventID;
+			String var = mn.getHashMap(eventType) + "cancel " + customerID
+					+ eventID;
 			if (serv.equalsIgnoreCase(bookingServ)) {
-				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"available ")) {
+				if (mn.checkAvailabilityOfEvent1(var.substring(0, 1), eventID)
+						.equalsIgnoreCase("available ")) {
 					if (mn.checkUserBooking(eventID, customerID)) {
-						String c = mn.canceledEvent(var.substring(0, 1),eventID, customerID);
+						String c = mn.canceledEvent(var.substring(0, 1),
+								eventID, customerID);
 
 						return (c);
 					} else
@@ -384,29 +436,30 @@ public class DemsImplementation implements WebInterface  {
 				} else {
 					return ("No such eventid is available in this eventType");
 				}
-			}
-			else if(bookingServ.equalsIgnoreCase("MTL")){
-				
+			} else if (bookingServ.equalsIgnoreCase("MTL")) {
+
 				String temp2;
 				temp2 = mn.UDPConnect(6000, var);
 				return temp2;
-				
-			}else if(bookingServ.equalsIgnoreCase("SHE")){
-				
+
+			} else if (bookingServ.equalsIgnoreCase("SHE")) {
+
 				String temp3;
 				temp3 = mn.UDPConnect(6002, var);
 				return temp3;
 			}
-			
+
 		} else if (serv.equalsIgnoreCase("SHE")) {
 			Sherbrook mn = new Sherbrook();
 
-			String var = mn.getHashMap(eventType)+"cancel "+customerID+eventID;
+			String var = mn.getHashMap(eventType) + "cancel " + customerID
+					+ eventID;
 			if (serv.equalsIgnoreCase(bookingServ)) {
-				if (mn.checkAvailabilityOfEvent(var.substring(0, 1), eventID).equalsIgnoreCase(
-						"available ")) {
+				if (mn.checkAvailabilityOfEvent1(var.substring(0, 1), eventID)
+						.equalsIgnoreCase("available ")) {
 					if (mn.checkUserBooking(eventID, customerID)) {
-						String c = mn.canceledEvent(var.substring(0, 1),eventID, customerID);
+						String c = mn.canceledEvent(var.substring(0, 1),
+								eventID, customerID);
 
 						return (c);
 					} else
@@ -414,23 +467,21 @@ public class DemsImplementation implements WebInterface  {
 				} else {
 					return ("No such eventid is available in this eventType");
 				}
-			}
-			else if(bookingServ.equalsIgnoreCase("QUE")){
-				
+			} else if (bookingServ.equalsIgnoreCase("QUE")) {
+
 				String temp2;
 				temp2 = mn.UDPConnect(6001, var);
 				return temp2;
-				
-			}else if(bookingServ.equalsIgnoreCase("MTL")){
-				
+
+			} else if (bookingServ.equalsIgnoreCase("MTL")) {
+
 				String temp3;
 				temp3 = mn.UDPConnect(6000, var);
 				return temp3;
 			}
-			
+
 		}
 		return null;
-		
 
 	}
 
@@ -438,37 +489,488 @@ public class DemsImplementation implements WebInterface  {
 	public String swapEvent(String customerID, String newEventID,
 			String newEventType, String oldEventID, String oldEventType,
 			String serv) {
-		DemsImplementation d1=new DemsImplementation();
-		DemsImplementation d2=new DemsImplementation();
-		StringBuffer str=new StringBuffer();
-		
-		
-		/*Runnable runnableTask = () -> {
-	*/
-		String str2=d1.bookEvent(customerID, newEventID, newEventType, serv);
-		str.append(str2);
-		/* 
-     }; 
-     Runnable runnableTask2 = () -> {*/
-    		
-		if((str2.substring(0, 12)).equalsIgnoreCase("booked event")){
-			String str1=d1.cancelEvent(customerID, oldEventID, oldEventType, serv);
-	    	 str.append(str1);
-	    	 if(!(str1.substring(0, 15)).equalsIgnoreCase("cancelled event")){
-	    		 String str3=d1.cancelEvent(customerID, newEventID, newEventType, serv);
-	    		 str.append(". Failed to swap event because booking was not availablle");
-	    	 }
-		} 
-    	 
-    
-     
-    /* ExecutorService executor = Executors.newFixedThreadPool(2);
-		executor.execute(runnableTask);
-		executor.execute(runnableTask2);
-		
-		executor.shutdownNow();*/
+		DemsImplementation d1 = new DemsImplementation();
+		DemsImplementation d2 = new DemsImplementation();
+		StringBuffer str = new StringBuffer();
+
+		char[] ch = newEventID.toCharArray();
+		char[] ch2 = { ch[0], ch[1], ch[2] };
+		String newServ = new String(ch2);
+
+		char[] ch1 = oldEventID.toCharArray();
+		char[] ch21 = { ch1[0], ch1[1], ch1[2] };
+		String oldServ = new String(ch21);
+
+		String Lowest_EventId = new String();
+
+		int month1 = Integer.parseInt(newEventID.substring(6, 8));
+		int month2 = Integer.parseInt(oldEventID.substring(6, 8));
+		int month = month1 - month2;
+		int date1 = Integer.parseInt(newEventID.substring(4, 6));
+		int date2 = Integer.parseInt(oldEventID.substring(4, 6));
+		int date = 0;
+		if (month == 0) {
+			date = date1 - date2;
+			if (date < 0) {
+				date = date * -1;
+				Lowest_EventId = newEventID;
+			} else {
+				Lowest_EventId = oldEventID;
+			}
+		} else if (month == 1) {
+			date = (date1 + 30) - date2;
+			Lowest_EventId = oldEventID;
+		} else if (month == -1) {
+			date = (date2 + 30) - date1;
+			Lowest_EventId = newEventID;
+		}
+
+		int numberOfBooking = 0;
+		int count = 0;
+		if (serv.equalsIgnoreCase("MTL")) {
+			Montreal mn = new Montreal();
+			if (oldServ.equalsIgnoreCase("MTL")) {
+
+				String var = mn.getHashMap(oldEventType);
+
+				// String variable="isBooked"+customerID;
+				String bookingexistence = mn.isbooked(customerID);
+				if (bookingexistence.equalsIgnoreCase("False ")) {
+					return ("Event Id not registered for customer");
+				}
+
+				if (mn.checkAvailabilityOfEvent(var, oldEventID)
+						.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(oldEventID)) {
+						String count1 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+
+					}
+				}
+
+			} else if (oldServ.equalsIgnoreCase("QUE")) {
+				String var = oldEventType.substring(0, 1) + "getExistence"
+						+ oldEventID;
+				String ans = (mn.UDPConnect(6001, var)).substring(0, 10);
+
+				String variable = "isBooked" + customerID;
+				String bookingexistence = (mn.UDPConnect(6001, variable))
+						.substring(0, 6);
+				if (bookingexistence.equalsIgnoreCase("False ")) {
+					return ("Event Id not registered for customer");
+				}
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(oldEventID)) {
+						String count1 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			} else if (oldServ.equalsIgnoreCase("SHE")) {
+				String var = oldEventType.substring(0, 1) + "getExistence"
+						+ oldEventID;
+				String ans = (mn.UDPConnect(6002, var)).substring(0, 10);
+
+				String variable = "isBooked" + customerID;
+				String bookingexistence = (mn.UDPConnect(6002, variable))
+						.substring(0, 6);
+				if (bookingexistence.equalsIgnoreCase("False ")) {
+					return ("Event Id not registered for customer");
+				}
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(oldEventID)) {
+						String count1 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			}
+
+			if (newServ.equalsIgnoreCase("MTL")) {
+
+				String var = mn.getHashMap(newEventType);
+
+				if (mn.checkAvailabilityOfEvent(var, newEventID)
+						.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(newEventID)) {
+						String count1 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+
+					}
+				}
+
+			} else if (newServ.equalsIgnoreCase("QUE")) {
+				String var = newEventType.substring(0, 1) + "getExistence"
+						+ newEventID;
+				String ans = (mn.UDPConnect(6001, var)).substring(0, 10);
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(newEventID)) {
+						String count1 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			} else if (newServ.equalsIgnoreCase("SHE")) {
+				String var = newEventType.substring(0, 1) + "getExistence"
+						+ newEventID;
+				String ans = (mn.UDPConnect(6002, var)).substring(0, 10);
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(newEventID)) {
+						String count1 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			}
+		} else if (serv.equalsIgnoreCase("QUE")) {
+			Quebec mn = new Quebec();
+			if (oldServ.equalsIgnoreCase("QUE")) {
+
+				String var = mn.getHashMap(oldEventType);
+
+				// String variable="isBooked"+customerID;
+				String bookingexistence = mn.isbooked(customerID);
+				if (bookingexistence.equalsIgnoreCase("False ")) {
+					return ("Event Id not registered for customer");
+				}
+
+				if (mn.checkAvailabilityOfEvent(var, oldEventID)
+						.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(oldEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+
+					}
+				}
+
+			} else if (oldServ.equalsIgnoreCase("MTL")) {
+				String var = oldEventType.substring(0, 1) + "getExistence"
+						+ oldEventID;
+				String ans = (mn.UDPConnect(6000, var)).substring(0, 10);
+
+				String variable = "isBooked" + customerID;
+				String bookingexistence = (mn.UDPConnect(6000, variable))
+						.substring(0, 6);
+				if (bookingexistence.equalsIgnoreCase("False ")) {
+					return ("Event Id not registered for customer");
+				}
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(oldEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			} else if (oldServ.equalsIgnoreCase("SHE")) {
+				String var = oldEventType.substring(0, 1) + "getExistence"
+						+ oldEventID;
+				String ans = (mn.UDPConnect(6002, var)).substring(0, 10);
+
+				String variable = "isBooked" + customerID;
+				String bookingexistence = (mn.UDPConnect(6002, variable))
+						.substring(0, 6);
+				if (bookingexistence.equalsIgnoreCase("False ")) {
+					return ("Event Id not registered for customer");
+				}
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(oldEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			}
+
+			if (newServ.equalsIgnoreCase("QUE")) {
+
+				String var = mn.getHashMap(newEventType);
+
+				if (mn.checkAvailabilityOfEvent(var, newEventID)
+						.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(newEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+
+					}
+				}
+
+			} else if (newServ.equalsIgnoreCase("MTL")) {
+				String var = newEventType.substring(0, 1) + "getExistence"
+						+ newEventID;
+				String ans = (mn.UDPConnect(6000, var)).substring(0, 10);
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(newEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			} else if (newServ.equalsIgnoreCase("SHE")) {
+				String var = newEventType.substring(0, 1) + "getExistence"
+						+ newEventID;
+				String ans = (mn.UDPConnect(6002, var)).substring(0, 10);
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(newEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6002, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			}
+		} else if (serv.equalsIgnoreCase("SHE")) {
+			Sherbrook mn = new Sherbrook();
+			if (oldServ.equalsIgnoreCase("SHE")) {
+
+				String var = mn.getHashMap(oldEventType);
+
+				// String variable="isBooked"+customerID;
+				String bookingexistence = mn.isbooked(customerID);
+				if (bookingexistence.equalsIgnoreCase("False ")) {
+					return ("Event Id not registered for customer");
+				}
+
+				if (mn.checkAvailabilityOfEvent1(var, oldEventID)
+						.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(oldEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+
+					}
+				}
+
+			} else if (oldServ.equalsIgnoreCase("MTL")) {
+				String var = oldEventType.substring(0, 1) + "getExistence"
+						+ oldEventID;
+				String ans = (mn.UDPConnect(6000, var)).substring(0, 10);
+
+				String variable = "isBooked" + customerID;
+				String bookingexistence = (mn.UDPConnect(6000, variable))
+						.substring(0, 6);
+				if (bookingexistence.equalsIgnoreCase("False ")) {
+					return ("Event Id not registered for customer");
+				}
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(oldEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			} else if (oldServ.equalsIgnoreCase("QUE")) {
+				String var = oldEventType.substring(0, 1) + "getExistence"
+						+ oldEventID;
+				String ans = (mn.UDPConnect(6001, var)).substring(0, 10);
+
+				String variable = "isBooked" + customerID;
+				String bookingexistence = (mn.UDPConnect(6001, variable))
+						.substring(0, 6);
+				if (bookingexistence.equalsIgnoreCase("False ")) {
+					return ("Event Id not registered for customer");
+				}
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(oldEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			}
+
+			if (newServ.equalsIgnoreCase("SHE")) {
+
+				String var = mn.getHashMap(newEventType);
+
+				if (mn.checkAvailabilityOfEvent(var, newEventID)
+						.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(newEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+
+					}
+				}
+
+			} else if (newServ.equalsIgnoreCase("MTL")) {
+				String var = newEventType.substring(0, 1) + "getExistence"
+						+ newEventID;
+				String ans = (mn.UDPConnect(6000, var)).substring(0, 10);
+				if (ans.equalsIgnoreCase("Available ")) {
+					count++;
+					if (Lowest_EventId.equals(newEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			} else if (newServ.equalsIgnoreCase("QUE")) {
+				String var = newEventType.substring(0, 1) + "getExistence"
+						+ newEventID;
+				String ans = (mn.UDPConnect(6001, var)).substring(0, 9);
+				if (ans.contains("Available")) {
+					count++;
+					if (Lowest_EventId.equals(newEventID)) {
+						String count1 = mn.UDPConnect(6000, ("checkCount"
+								+ customerID + Lowest_EventId));
+						String count2 = mn.UDPConnect(6001, ("checkCount"
+								+ customerID + Lowest_EventId));
+						numberOfBooking = Integer.parseInt(count1.substring(0,
+								1)) + Integer.parseInt(count2.substring(0, 1));
+					}
+				}
+
+			}
+		}
+
+		if (count < 2) {
+			return ("Event Id doesn't exist or no capacity for the event");
+		}
+
+		if (date <= 3
+				&& date >= 0
+				&& !(oldServ.equalsIgnoreCase(newServ)
+						&& newServ.equalsIgnoreCase(serv) && oldServ
+							.equalsIgnoreCase(serv))) {
+			if (numberOfBooking == 3) {
+				String str2 = d1.cancelEvent(customerID, oldEventID,
+						oldEventType, serv);
+				str.append(str2.trim());
+
+				if ((str2.substring(0, 15)).equalsIgnoreCase("cancelled event")) {
+					String str1 = d1.bookEvent(customerID, newEventID,
+							newEventType, serv);
+					str.append(str1);
+					if (!(str1.substring(0, 12))
+							.equalsIgnoreCase("booked event")) {
+						String str3 = d1.bookEvent(customerID, oldEventID,
+								oldEventType, serv);
+						str.append(". Failed to swap event because booking was not availablle");
+					}
+				}
+			} else {
+				String str2 = d1.bookEvent(customerID, newEventID,
+						newEventType, serv);
+				str.append(str2.trim());
+
+				if ((str2.substring(0, 12)).equalsIgnoreCase("booked event")) {
+					String str1 = d1.cancelEvent(customerID, oldEventID,
+							oldEventType, serv);
+					str.append(str1);
+					if (!(str1.substring(0, 15))
+							.equalsIgnoreCase("cancelled event")) {
+						String str3 = d1.cancelEvent(customerID, newEventID,
+								newEventType, serv);
+						str.append(". Failed to swap event because booking was not availablle");
+					}
+				}
+			}
+		} else {
+			String str2 = d1.bookEvent(customerID, newEventID, newEventType,
+					serv);
+			str.append(str2.trim());
+
+			if ((str2.substring(0, 12)).equalsIgnoreCase("booked event")) {
+				String str1 = d1.cancelEvent(customerID, oldEventID,
+						oldEventType, serv);
+				str.append(str1);
+				if (!(str1.substring(0, 15))
+						.equalsIgnoreCase("cancelled event")) {
+					String str3 = d1.cancelEvent(customerID, newEventID,
+							newEventType, serv);
+					str.append(". Failed to swap event because booking was not availablle");
+				}
+			}
+		}
+
+		/*
+		 * ExecutorService executor = Executors.newFixedThreadPool(2);
+		 * executor.execute(runnableTask); executor.execute(runnableTask2);
+		 * 
+		 * executor.shutdownNow();
+		 */
 		return (str.toString());
 	}
-
 
 }

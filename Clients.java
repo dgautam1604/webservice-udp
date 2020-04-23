@@ -20,7 +20,7 @@ public class Clients {
 	public static Service queService;
 	public static Service sheService;
 	static WebInterface dem;
-	public static void main(String[] args) throws MalformedURLException  {
+	public static void main(String[] args) throws MalformedURLException, FileNotFoundException  {
 		// TODO Auto-generated method stub
 		
 		
@@ -44,7 +44,7 @@ public class Clients {
 			
 			
 			System.out.println("Client Started");
-			
+			while(true) {
 			System.out.print("Enter your id ");
 			Scanner sc = new Scanner(System.in);
 			
@@ -71,7 +71,7 @@ public class Clients {
 			if(bookingServ.equalsIgnoreCase("SHE"))
 				dem = sheService.getPort(WebInterface.class);
 			
-			while(true) {
+		/*	while(true) {*/
 			System.out.println("What would you like to do today?(Select 1,2,3)");
 			if(ch[3] == 'M'){
 				System.out.println("1.addEvent"+"\n"+

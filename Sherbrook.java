@@ -27,7 +27,7 @@ public class Sherbrook {
 
 	public static void main(String[] args) throws FileNotFoundException {
 
-		// get reference to rootpoa &amp; activate
+		//get reference to rootpoa &amp; activate
 		/*String location="G:\\workspace\\6231_project\\src\\logger\\clientlog\\Sherbrook.txt";;
 		PrintStream o=new PrintStream(new File(location));
 		System.setOut(o);*/
@@ -59,7 +59,7 @@ public class Sherbrook {
 	            
 	                String fullid = new String(request.getData());
 	                if(fullid.substring(0, 10).equalsIgnoreCase("checkCount")){
-	                    int count=m.getOccurances(fullid.substring(10, 18));
+	                    int count=m.getOccurances(fullid.substring(10, 18),fullid.substring(18, 28));
 	                    String mcount=String.valueOf(count);
 	                    byte[] msg = mcount.getBytes();
 	                    DatagramPacket reply = new DatagramPacket(msg, msg.length,
@@ -74,6 +74,32 @@ public class Sherbrook {
 								request.getAddress(), request.getPort());
 						MSocket.send(reply);
 					}
+	                if(fullid.substring(0, 8).equalsIgnoreCase("isBooked")){
+	                    String customerID=(fullid.substring(8, 16));
+	                    String bookingexistence=m.isbooked(customerID);
+	                    byte[] msg = bookingexistence.getBytes();
+	                    DatagramPacket reply = new DatagramPacket(msg, msg.length,
+	                            request.getAddress(), request.getPort());
+	                    MSocket.send(reply);
+	                }
+	                if(fullid.substring(1, 13).equalsIgnoreCase("getExistence")){
+	                    String oldEventID=(fullid.substring(13, 23));
+	                    String oldEventType=(fullid.substring(0, 1));
+	                    if(oldEventType.equalsIgnoreCase("c")){
+	                        oldEventType="Conference";
+	                    }else if(oldEventType.equalsIgnoreCase("t")){
+	                        oldEventType="TradeShow";
+	                    }else if(oldEventType.equalsIgnoreCase("s")){
+	                        oldEventType="Seminar";
+	                    }
+	                    String var = m.getHashMap(oldEventType);
+	                    String ans=m.checkAvailabilityOfEvent(var, oldEventID);
+	                    
+	                    byte[] msg = ans.getBytes();
+	                    DatagramPacket reply = new DatagramPacket(msg, msg.length,
+	                            request.getAddress(), request.getPort());
+	                    MSocket.send(reply);
+	                }
 	                String var = fullid.substring(0, 1);
 	                String var2 = fullid.substring(1, 8);
 	                
@@ -96,7 +122,7 @@ public class Sherbrook {
 	                                    request.getAddress(), request.getPort());
 	                            MSocket.send(reply);
 	                        } else {
-	                            String r = "No such event is available";
+	                            String r = "No such event is available or has no more space";
 	                            byte[] msg = r.getBytes();
 	                            DatagramPacket reply = new DatagramPacket(msg, msg.length,
 	                                    request.getAddress(), request.getPort());
@@ -106,7 +132,7 @@ public class Sherbrook {
 	                    }else if(var2.equalsIgnoreCase("cancel ")){
 							String customerID = fullid.substring( 8,16);
 							String eventID = fullid.substring(16, 26);
-							if (m.checkAvailabilityOfEvent(var, eventID).equalsIgnoreCase(
+							if (m.checkAvailabilityOfEvent1(var, eventID).equalsIgnoreCase(
 									"available ")) {
 								if (m.checkUserBooking(eventID, customerID)) {
 									String c = m.canceledEvent(var,eventID, customerID);
@@ -573,6 +599,33 @@ public class Sherbrook {
 		}
 		return null;
 	}
+	public synchronized String checkAvailabilityOfEvent1(String var, String key) {
+		// key is event id
+
+		if (var.equalsIgnoreCase("a")) {
+			if (a.containsKey(key)) {
+				return ("Available ");
+			} else {
+
+				return ("Not");
+			}
+		} else if (var.equalsIgnoreCase("b")) {
+			if (b.containsKey(key)) {
+				return ("Available ");
+			} else {
+
+				return ("Not");
+			}
+		} else if (var.equalsIgnoreCase("c")) {
+			if (c.containsKey(key)) {
+				return ("Available ");
+			} else {
+
+				return ("Not");
+			}
+		}
+		return null;
+	}
 
 	public synchronized String bookedEvent(String var,String eventID, String customerID) {
 		// TODO Auto-generated method stub
@@ -649,17 +702,163 @@ public class Sherbrook {
 		} else
 			return false;
 	}
-	public synchronized int getOccurances(String customerID) {
-        // TODO Auto-generated method stub
-        int[] count = {0};
-        Muser2.entrySet().forEach(entry -> {
-        	if (entry.getValue().contains(customerID)){
-				count[0]++;
-			}
-                
-        });
-        return count[0];
-    }
+	 public synchronized int getOccurances(String customerID, String EventId) {
+	        // TODO Auto-generated method stub
+	        int[] count = {0};
+	        int date=Integer.parseInt(EventId.substring(4,6));
+	        ArrayList<String> ar=new ArrayList<String>();
+	        
+	        if(date>=4 && date <=27)
+	        {
+	            for(int i=-3;i<=3;i++){
+	                int c;
+	                c=date;
+	                c=c+i;
+	                String newEvent = new String();
+	                if(c>=1 && c<10){
+	                    newEvent="SHE"+EventId.substring(3,4)+"0"+c+EventId.substring(6,10);
+	                }else if(c>=10){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+EventId.substring(6,10);
+	                }
+	                if(EventId.substring(3,4).equalsIgnoreCase("M")){
+	                	 ar.add(newEvent);
+	                	 ar.add(newEvent.substring(0, 3)+"A"+newEvent.substring(4));
+	                	 ar.add(newEvent.substring(0, 3)+"E"+newEvent.substring(4));
+	                }else if(EventId.substring(3,4).equalsIgnoreCase("A")){
+	                	 ar.add(newEvent);
+	                	 ar.add(newEvent.substring(0, 3)+"M"+newEvent.substring(4));
+	                	 ar.add(newEvent.substring(0, 3)+"E"+newEvent.substring(4));
+	                }else if(EventId.substring(3,4).equalsIgnoreCase("E")){
+	                	 ar.add(newEvent);
+	                	 ar.add(newEvent.substring(0, 3)+"A"+newEvent.substring(4));
+	                	 ar.add(newEvent.substring(0, 3)+"M"+newEvent.substring(4));
+	                }
+	               
+	            }
+	        } else if(date>27 && date <=30){
+	            
+	            for(int i=-3;i<=3;i++){
+	                int month=Integer.parseInt(EventId.substring(6,8));
+	                int c;
+	                c=date;
+	                c=c+i;
+	                if(c>30){
+	                     month=Integer.parseInt(EventId.substring(6,8))+1;
+	                    c=c-30;
+	                }
+	                    
+	                String newEvent = new String();
+	                if(c>=1 && c<10){
+	                    if(month>=1 && month<10){
+	                    newEvent="SHE"+EventId.substring(3,4)+"0"+c+"0"+month+EventId.substring(8,10);
+	                }else if(month>=10){
+	                    newEvent="SHE"+EventId.substring(3,4)+"0"+c+"0"+month+EventId.substring(8,10);
+	                }else if(month==0){
+	                    newEvent="SHE"+EventId.substring(3,4)+"0"+c+"12"+(Integer.parseInt(EventId.substring(8,10))-1);
+	                }else if(month==13){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"01"+(Integer.parseInt(EventId.substring(8,10))+1);
+	                }
+	                }else if(c>=10){
+	                    if(month>=1 && month<10){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"0"+month+EventId.substring(8,10);
+	                }else if(month>=10){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"0"+month+EventId.substring(8,10);
+	                }else if(month==0){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"12"+(Integer.parseInt(EventId.substring(8,10))-1);
+	                }else if(month==13){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"01"+(Integer.parseInt(EventId.substring(8,10))+1);
+	                }
+	                }
+	                if(EventId.substring(3,4).equalsIgnoreCase("M")){
+	                	 ar.add(newEvent);
+	                	 ar.add(newEvent.substring(0, 3)+"A"+newEvent.substring(4));
+	                	 ar.add(newEvent.substring(0, 3)+"E"+newEvent.substring(4));
+	                }else if(EventId.substring(3,4).equalsIgnoreCase("A")){
+	                	 ar.add(newEvent);
+	                	 ar.add(newEvent.substring(0, 3)+"M"+newEvent.substring(4));
+	                	 ar.add(newEvent.substring(0, 3)+"E"+newEvent.substring(4));
+	                }else if(EventId.substring(3,4).equalsIgnoreCase("E")){
+	                	 ar.add(newEvent);
+	                	 ar.add(newEvent.substring(0, 3)+"A"+newEvent.substring(4));
+	                	 ar.add(newEvent.substring(0, 3)+"M"+newEvent.substring(4));
+	                }
+	            }
+	        }else if(date>=1 && date <=3){
+	            
+	            for(int i=-3;i<=3;i++){
+	                int month=Integer.parseInt(EventId.substring(6,8));
+	                int c;
+	                c=date;
+	                c=c+i;
+	                if(c<1){
+	                     month=Integer.parseInt(EventId.substring(6,8))-1;
+	                    c=c+30;
+	                }
+	                    
+	                String newEvent = new String();
+	                if(c>=1 && c<10){
+	                    if(month>=1 && month<10){
+	                    newEvent="SHE"+EventId.substring(3,4)+"0"+c+"0"+month+EventId.substring(8,10);
+	                }else if(month>=10){
+	                    newEvent="SHE"+EventId.substring(3,4)+"0"+c+"0"+month+EventId.substring(8,10);
+	                }else if(month==0){
+	                    newEvent="SHE"+EventId.substring(3,4)+"0"+c+"12"+(Integer.parseInt(EventId.substring(8,10))-1);
+	                }else if(month==13){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"01"+(Integer.parseInt(EventId.substring(8,10))+1);
+	                }
+	                }else if(c>=10){
+	                    if(month>=1 && month<10){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"0"+month+EventId.substring(8,10);
+	                }else if(month>=10){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"0"+month+EventId.substring(8,10);
+	                }else if(month==0){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"12"+(Integer.parseInt(EventId.substring(8,10))-1);
+	                }else if(month==13){
+	                    newEvent="SHE"+EventId.substring(3,4)+c+"01"+(Integer.parseInt(EventId.substring(8,10))+1);
+	                }
+	                }
+	                if(EventId.substring(3,4).equalsIgnoreCase("M")){
+	                	 ar.add(newEvent);
+	                	 ar.add(newEvent.substring(0, 3)+"A"+newEvent.substring(4));
+	                	 ar.add(newEvent.substring(0, 3)+"E"+newEvent.substring(4));
+	                }else if(EventId.substring(3,4).equalsIgnoreCase("A")){
+	                	 ar.add(newEvent);
+	                	 ar.add(newEvent.substring(0, 3)+"M"+newEvent.substring(4));
+	                	 ar.add(newEvent.substring(0, 3)+"E"+newEvent.substring(4));
+	                }else if(EventId.substring(3,4).equalsIgnoreCase("E")){
+	                	 ar.add(newEvent);
+	                	 ar.add(newEvent.substring(0, 3)+"A"+newEvent.substring(4));
+	                	 ar.add(newEvent.substring(0, 3)+"M"+newEvent.substring(4));
+	                }
+	            }
+	        }
+	        
+	        
+	        Muser2.entrySet().forEach(entry -> {
+	            
+	            if (ar.contains(entry.getKey()) && entry.getValue().contains(customerID)){
+	                count[0]++;
+	            }
+	                
+	        });
+	        return count[0];
+	    }
+	 public synchronized String isbooked(String customerID) {
+	        StringBuffer str = new StringBuffer("");
+	        int[] count={0};
+	        Muser2.entrySet().forEach(entry -> {
+	            
+	                
+	            if (entry.getValue().contains(customerID)){
+	                count[0]++;
+	            }
+	        });
+	        if(count[0]==0)
+	            str.append("false");
+	        else
+	            str.append("true");
+	        return str.toString();
+	    }
 	public synchronized String getUserData(String customerID) {
 		HashMap<String, String> temp11 = new HashMap<String, String>();
 
